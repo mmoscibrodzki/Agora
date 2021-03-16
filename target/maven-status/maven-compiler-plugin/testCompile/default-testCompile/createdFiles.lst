@@ -1,0 +1,8 @@
+base\checks\SoftAssert.class
+base\pages\Page.class
+selenium\tests\SportHpTest.class
+base\TestApi.class
+base\pages\SportHp.class
+base\SeleniumSession.class
+base\config\ConfigurationHolder.class
+base\TestCaseMeta.class
