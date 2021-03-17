@@ -46,7 +46,8 @@ public class SportHpTest {
 
         try (SeleniumSession session = new SeleniumSession()) {
             Article article = session.sportHp().clickPilkaNozna().clickArticle(1);
-            SoftAssert.assertTrue(!article.getDriver().findElements(By.xpath("//script[@src='https://static.im-g.pl/style-modules/master/webpack/Sport/166/pagetype7/main.js.jsgz']")).isEmpty());
+            SoftAssert.assertTrue(!article.getDriver().findElements(By.xpath("//script[contains(@src,'https://static.im-g.pl/style-modules/master/webpack/Sport/') " +
+                    "and contains(@src,'/pagetype7/main.js.jsgz')]")).isEmpty());
         }
 
         SoftAssert.checkAssertions();
@@ -57,7 +58,7 @@ public class SportHpTest {
     @Test
     @TestCaseMeta(testCaseId = "TC_03",
             testCaseName = "Wynikomat",
-            description = "Test ma wejść na mecz z wynikomatu, oraz sprawdzić czy czerwony pseudo element istnieje")
+            description = "Test ma wejść na mecz z wynikomatu, oraz sprawdzić czy czerwony pseudo element jest widoczny")
     public void whenWynikomatAccessedThenCheckPseudoElement() {
         TestApi.newScenario("whenWynikomatAccessedThenCheckPseudoElement");
 

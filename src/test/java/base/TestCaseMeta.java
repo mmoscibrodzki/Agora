@@ -7,8 +7,10 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface TestCaseMeta{
-    String testCaseId() default"";
+public @interface TestCaseMeta {
+    String testCaseId() default "";
+
     String testCaseName() default "";
+
     String description() default "";
 }

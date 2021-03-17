@@ -1,10 +1,14 @@
 package base.pages;
 
-import org.openqa.selenium.*;
-import org.openqa.selenium.interactions.Actions;
+import org.awaitility.core.ConditionTimeoutException;
+import org.openqa.selenium.By;
+import org.openqa.selenium.ElementClickInterceptedException;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
-import java.util.concurrent.TimeUnit;
-
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
 
 public abstract class Page {
@@ -13,32 +17,43 @@ public abstract class Page {
 
     protected void safeClick(WebElement element, WebDriver driver) {
         try {
+            acceptPopups(driver);
+            WebDriverWait wait = new WebDriverWait(driver, 10);
+            wait.until(ExpectedConditions.elementToBeClickable(element));
             element.click();
         } catch (ElementClickInterceptedException t) {
-            await().atMost(10, TimeUnit.SECONDS).until(() -> !driver.findElements(By.xpath("//*[text()='Przejdź do strony »']")).isEmpty());
-            driver.findElement(By.xpath("//*[text()='Przejdź do strony »']")).click();
+            await().atMost(10, SECONDS).until(() -> isFillerBlockingButtons(driver) || isAddDisplayed(driver));
+            acceptPopups(driver);
             element.click();
         }
     }
 
-    protected void safeClickOld(WebElement element, WebDriver driver) {
-        Actions actions = new Actions(driver);
-        actions.moveToElement(element).perform();
-        JavascriptExecutor executor = (JavascriptExecutor) driver;
-        Long currentScreenPosition = (Long) executor.executeScript("return window.pageYOffset;");
-        Long innerHeight = (Long) executor.executeScript("return window.innerHeight;");
-        long elementPosition = (long) element.getLocation().y;
-        if (elementPosition - currentScreenPosition < 300) {
-            executor.executeScript("window.scrollBy(0,-300)");
+    public void acceptPopups(WebDriver driver) {
+        if (isFillerBlockingButtons(driver)) {
+            await().atMost(10, SECONDS).until(() -> !driver.findElements(By.id("onetrust-accept-btn-handler")).isEmpty());
+            driver.findElement(By.id("onetrust-accept-btn-handler")).click();
         }
-        if (currentScreenPosition + innerHeight - elementPosition < 300 || currentScreenPosition + innerHeight < elementPosition) {
-            executor.executeScript("window.scrollBy(0,300)");
+
+        if (isAddDisplayed(driver)) {
+            driver.findElement(By.xpath("//*[text()='Przejdź do strony »']")).click();
         }
         try {
-            element.click();
-
-        } catch (ElementClickInterceptedException t) {
-            executor.executeScript("window.scrollBy(0,-400)");
+            await().atMost(2, SECONDS).until(() -> !isFillerBlockingButtons(driver) && !isAddDisplayed(driver));
+        } catch (ConditionTimeoutException t) {
+            acceptPopups(driver);
         }
+
+    }
+
+    private boolean isFillerBlockingButtons(WebDriver driver) {
+        if (driver.findElements(By.xpath("//*[@class='onetrust-pc-dark-filter ot-fade-in']")).isEmpty()) {
+            return false;
+        } else {
+            return !driver.findElement(By.xpath("//*[@class='onetrust-pc-dark-filter ot-fade-in']")).getAttribute("style").contains("visibility: hidden;");
+        }
+    }
+
+    private boolean isAddDisplayed(WebDriver driver) {
+        return !driver.findElements(By.xpath("//*[text()='Przejdź do strony »']")).isEmpty();
     }
 }

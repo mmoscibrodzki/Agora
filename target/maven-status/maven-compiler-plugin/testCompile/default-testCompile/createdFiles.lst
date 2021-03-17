@@ -1,7 +1,10 @@
+base\pages\PilkaNozna.class
 base\checks\SoftAssert.class
 base\pages\Page.class
 selenium\tests\SportHpTest.class
+base\pages\Wynikomat.class
 base\TestApi.class
+base\pages\Article.class
 base\pages\SportHp.class
 base\SeleniumSession.class
 base\config\ConfigurationHolder.class
